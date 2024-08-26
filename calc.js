@@ -60,6 +60,7 @@ function toPostfix(statement) {
       isFloat = isNumber = false;
       opstack.push(token);
     } else if (token == ")") {
+      if (!opstack.includes("(")) throw new Error("No open bracket");
       isFloat = isNumber = false;
       let subtoken = opstack.pop();
       while (subtoken != "(") {
@@ -76,6 +77,7 @@ function toPostfix(statement) {
       opstack.push(token);
     }
   });
+  if (opstack.includes("(")) throw new Error("No close bracket");
   while (opstack.length) postfix.push(opstack.pop());
   return postfix;
 }
@@ -96,6 +98,10 @@ function calculate(statement) {
       }
     } else opstack.push(parseFloat(token));
   });
-  return opstack.pop().toFixed(2);
+  const res = opstack.pop().toString().split(".");
+  if (res[1]) {
+    return parseFloat(res.join(".")).toFixed(2);
+  }
+  return parseInt(res[0]);
 }
 module.exports = calculate;
