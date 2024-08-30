@@ -2,46 +2,7 @@ Array.prototype.peek = function () {
   return this[this.length - 1];
 };
 
-const operators = new Map([
-  [
-    "@",
-    {
-      priority: "4",
-      math: (op1) => {
-        if (op1 < 0) throw { message: "sqrt argument must be gte zero" };
-        return Math.sqrt(op1);
-      },
-      type: "unary",
-    },
-  ],
-  ["*", { priority: "3", math: (op1, op2) => op1 * op2, type: "binary" }],
-  ["/", { priority: "3", math: (op1, op2) => op1 / op2, type: "binary" }],
-  [
-    "+",
-    {
-      priority: "2",
-      math: (op1, op2) => {
-        if (op1) return op1 + op2; // binary
-        return op2; // unary
-      },
-      type: "binary",
-    },
-  ],
-  [
-    "-",
-    {
-      priority: "2",
-      math: (op1, op2) => {
-        if (op1) return op1 - op2; // binary
-        return -op2; // unary
-      },
-      type: "binary",
-    },
-  ],
-  ["(", { priority: "1" }],
-]);
-
-function toPostfix(statement) {
+function toPostfix(statement, operators) {
   let tokens = statement.split(""),
     opstack = [],
     postfix = [],
@@ -82,9 +43,9 @@ function toPostfix(statement) {
   return postfix;
 }
 
-function calculate(statement) {
+function calculate(statement, operators) {
   let opstack = [],
-    tokens = toPostfix(statement);
+    tokens = toPostfix(statement, operators);
   tokens.forEach((token) => {
     const operator = operators.get(token);
     if (operator) {
