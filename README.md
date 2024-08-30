@@ -8,7 +8,7 @@
 введите выражение: stop
 ```
 
-# test   
+# test (jest)   
 ```js
 npm test
 ```
