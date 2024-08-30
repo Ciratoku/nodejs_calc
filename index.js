@@ -17,6 +17,24 @@ async function* questions(query) {
   }
 }
 
+function validateAddOp(operation) {
+  const types = ["unary", "binary"];
+  let parsed;
+  try {
+    parsed = JSON.parse(`[${operation}]`);
+  } catch (err) {
+    return "Parsing error";
+  }
+  const [op, type, priority, body] = parsed;
+  if (op.length != 1) return "Operation length must be equal 1";
+  if (operators.has(op)) return "Such operation exists";
+  if (!types.includes(type)) return "Type must be either unary or binary";
+  if (typeof priority != "number") return "Priority must be a number";
+  if (type === "binary" && (!body.includes("op1") || !body.includes("op2")))
+    return "Body function must have 2 parameters";
+  return "added";
+}
+
 function addOperation(operation) {
   const info = JSON.parse(`[${operation}]`);
   const arguments = info[1] == "unary" ? "op" : "op1, op2";
@@ -34,10 +52,14 @@ function addOperation(operation) {
 
 async function run() {
   for await (const answer of questions("Добавьте операцию: ")) {
-    if (answer == "stop") break;
+    if (answer == "skip") break;
+    const validated = validateAddOp(answer);
+    if (validated !== "added") {
+      console.log(validated);
+      continue;
+    }
     const newOp = addOperation(answer);
     operators.set(newOp[0], newOp[1]);
-    console.log([...operators.entries()]);
   }
   for await (const answer of questions("Введите выражение: ")) {
     if (answer == "stop") break;
